@@ -45,6 +45,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UStaticMeshComponent* mesh;
 
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
