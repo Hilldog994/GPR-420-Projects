@@ -15,6 +15,9 @@ public:
 	// Sets default values for this actor's properties
 	ADestructibleCube();
 
+	UFUNCTION(BlueprintCallable)
+	void GetHit(); //spawn 4 smaller cubes
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
