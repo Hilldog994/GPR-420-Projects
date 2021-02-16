@@ -15,6 +15,10 @@ public:
 	// Sets default values for this actor's properties
 	AFPSBombActor();
 
+	//Explodes bomb, public so that it can be exploded instantly
+	UFUNCTION(BlueprintCallable)
+	void ExplodeBomb();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -28,14 +32,15 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Bomb")
 	float bombRadius;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Bomb")
+	float bombStrength;
+
 	UMaterialInstanceDynamic* matInst;
 
 	FLinearColor initialColor;
 	FLinearColor targetColor;
 
-	//Explodes bomb
-	UFUNCTION()
-	void ExplodeBomb();
+
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UStaticMeshComponent* mesh;

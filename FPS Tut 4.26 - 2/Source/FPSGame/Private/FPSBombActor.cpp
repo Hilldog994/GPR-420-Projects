@@ -16,6 +16,7 @@ AFPSBombActor::AFPSBombActor()
 	PrimaryActorTick.bCanEverTick = true;
 	ExplodeDelay = 2.0f;
 	bombRadius = 500.0f;
+	bombStrength = 200.0f;
 }
 
 // Called when the game starts or when spawned
@@ -55,6 +56,23 @@ void AFPSBombActor::ExplodeBomb()
 		UPrimitiveComponent* overlapComp = result.GetComponent();
 		if (overlapComp && overlapComp->IsSimulatingPhysics())
 		{
+			//overlapComp->AddImpulseAtLocation(GetVelocity() * 100.0f, GetActorLocation());
+			overlapComp->AddRadialImpulse(GetActorLocation(), bombRadius, bombStrength, ERadialImpulseFalloff::RIF_Linear, true);
+			FVector scale = overlapComp->GetComponentScale();
+			scale *= .5f;
+
+			if (scale.GetMin() < 0.5f)
+			{
+				overlapComp->GetOwner()->Destroy();
+				
+				//spawns a bomb, then explodes it
+				AFPSBombActor* mBomb = GetWorld()->SpawnActor<AFPSBombActor>(this->GetClass(), GetActorLocation(), GetActorRotation());
+				mBomb->ExplodeBomb();
+			}
+			else
+			{
+				overlapComp->SetWorldScale3D(scale);
+			}
 			UMaterialInstanceDynamic* mat = overlapComp->CreateAndSetMaterialInstanceDynamic(0);
 			if (mat)
 			{
