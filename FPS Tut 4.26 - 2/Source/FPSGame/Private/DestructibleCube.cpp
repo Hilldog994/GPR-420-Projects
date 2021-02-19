@@ -34,7 +34,7 @@ void ADestructibleCube::GetHit()
 		ADestructibleCube* spawnedCube2 = GetWorld()->SpawnActor<ADestructibleCube>(this->GetClass(), GetActorLocation() + FVector(1.0, 0.0, -1.0), GetActorRotation());
 		ADestructibleCube* spawnedCube3 = GetWorld()->SpawnActor<ADestructibleCube>(this->GetClass(), GetActorLocation() + FVector(-1.0, 0.0, 1.0), GetActorRotation());
 		ADestructibleCube* spawnedCube4 = GetWorld()->SpawnActor<ADestructibleCube>(this->GetClass(), GetActorLocation() + FVector(-1.0, 0.0, -1.0), GetActorRotation());
-		scale *= .25f;
+		scale *= .5f; //half of all dimensions makes a 4th of the cube
 		spawnedCube1->RootComponent->SetWorldScale3D(scale);
 		spawnedCube2->RootComponent->SetWorldScale3D(scale);
 		spawnedCube3->RootComponent->SetWorldScale3D(scale);
@@ -43,6 +43,11 @@ void ADestructibleCube::GetHit()
 		Destroy();
 	}
 	
+}
+
+void ADestructibleCube::GetHitCharge()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Orange, TEXT("Charge Hit"));
 }
 
 // Called when the game starts or when spawned

@@ -18,6 +18,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void GetHit(); //spawn 4 smaller cubes
 
+	UFUNCTION(BlueprintCallable)
+	void GetHitCharge(); //destroy nearby cubes(or just change color)
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

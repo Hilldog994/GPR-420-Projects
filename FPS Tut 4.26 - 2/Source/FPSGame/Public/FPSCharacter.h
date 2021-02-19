@@ -13,6 +13,7 @@ class AFPSProjectile;
 class USoundBase;
 class UAnimSequence;
 class AFPSBombActor;
+class AFPSChargeShotProjectile;
 
 
 UCLASS()
@@ -41,6 +42,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category="Projectile")
 	TSubclassOf<AFPSProjectile> ProjectileClass;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
+	TSubclassOf<AFPSChargeShotProjectile> ChargeShotClass;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Bombs")
 	TSubclassOf<AFPSBombActor> BombClass;
 
@@ -56,6 +60,9 @@ protected:
 	
 	/** Fires a projectile. */
 	void Fire();
+
+	//fires the charged shot projectile
+	void FireChargeShot();
 
 	//Spawns a bomb
 	void SpawnBomb();
