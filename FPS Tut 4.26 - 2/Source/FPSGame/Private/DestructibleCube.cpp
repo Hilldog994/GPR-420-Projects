@@ -25,28 +25,36 @@ ADestructibleCube::ADestructibleCube()
 void ADestructibleCube::GetHit()
 {
 	FVector scale = RootComponent->GetComponentScale();
-
-	if (scale.GetMin() <= 0.75f)
+	//destroy if one of the smaller 4 cubes
+	if (isSmallerCube)//scale.GetMin() <= 0.75f used to be here but big cubes could split again which isnt what instructions say should happen
 	{
 		Destroy();
 	}
 	else
 	{
+		//tried disabling collision before spawning to prevent them flying out but it didnt change anything
+
+		//spawns 4 cubes
 		ADestructibleCube* spawnedCube1 = GetWorld()->SpawnActor<ADestructibleCube>(this->GetClass(), GetActorLocation() + FVector(1.0, 0.0, 1.0), GetActorRotation());
 		ADestructibleCube* spawnedCube2 = GetWorld()->SpawnActor<ADestructibleCube>(this->GetClass(), GetActorLocation() + FVector(1.0, 0.0, -1.0), GetActorRotation());
 		ADestructibleCube* spawnedCube3 = GetWorld()->SpawnActor<ADestructibleCube>(this->GetClass(), GetActorLocation() + FVector(-1.0, 0.0, 1.0), GetActorRotation());
 		ADestructibleCube* spawnedCube4 = GetWorld()->SpawnActor<ADestructibleCube>(this->GetClass(), GetActorLocation() + FVector(-1.0, 0.0, -1.0), GetActorRotation());
-		scale *= .5f; //half of all dimensions makes a 4th of the cube
+		scale *= .5f; //half of all dimensions makes a 4th of the cube, apply to all spawned cubes
 		spawnedCube1->RootComponent->SetWorldScale3D(scale);
+		spawnedCube1->isSmallerCube = true;
 		spawnedCube2->RootComponent->SetWorldScale3D(scale);
+		spawnedCube2->isSmallerCube = true;
 		spawnedCube3->RootComponent->SetWorldScale3D(scale);
+		spawnedCube3->isSmallerCube = true;
 		spawnedCube4->RootComponent->SetWorldScale3D(scale);
+		spawnedCube4->isSmallerCube = true;
 
-		Destroy();
+		Destroy();//destroys original cube(this)
 	}
 	
 }
 
+//When charge shot hits cube, change color or destroy nearby cubes
 void ADestructibleCube::GetHitCharge()
 {
 	TArray<FOverlapResult> overlaps;
@@ -59,16 +67,18 @@ void ADestructibleCube::GetHitCharge()
 	shape.SetSphere(explosionRadius);
 
 	GetWorld()->OverlapMultiByObjectType(overlaps, GetActorLocation(), FQuat::Identity, queryParams, shape);
-
+	//overlap within radius
 	for (FOverlapResult result : overlaps)
 	{
 		UPrimitiveComponent* overlapComp = result.GetComponent();
 		if (overlapComp && overlapComp->IsSimulatingPhysics())
 		{
-			if (Cast<ADestructibleCube>(overlapComp->GetOwner()))
+			if (Cast<ADestructibleCube>(overlapComp->GetOwner())) //if overlap is a destructible cube
 			{
-				//Destroy(overlapComp->GetOwner());
-
+				//overlapComp->GetOwner()->Destroy(); //destroy overlap cube
+				
+				//change color to random color
+				overlapComp->AddRadialImpulse(GetActorLocation(), explosionRadius, 5000.f, ERadialImpulseFalloff::RIF_Linear,true);
 				UMaterialInstanceDynamic* mat = overlapComp->CreateAndSetMaterialInstanceDynamic(0);
 				if (mat)
 				{
@@ -77,7 +87,7 @@ void ADestructibleCube::GetHitCharge()
 			}
 		}
 	}
-	Destroy();
+	Destroy();//destroy original attacked cube(this)
 }
 
 // Called when the game starts or when spawned

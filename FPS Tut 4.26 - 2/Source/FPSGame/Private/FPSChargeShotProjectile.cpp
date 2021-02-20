@@ -38,31 +38,22 @@ AFPSChargeShotProjectile::AFPSChargeShotProjectile()
 
 void AFPSChargeShotProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	// Only add impulse and destroy projectile if we hit a physics
 	if ((OtherActor != NULL) && (OtherActor != this) && (OtherComp != NULL) && OtherComp->IsSimulatingPhysics())
 	{
-		//if hit destructible cube
-		if (Cast<ADestructibleCube>(OtherActor))
+		if (Cast<ADestructibleCube>(OtherActor))//if hit destructible cube
 		{
-			UGameplayStatics::SpawnEmitterAtLocation(this, ChargeShotPart, GetActorLocation());//spawn particle system
-			OtherComp->AddImpulseAtLocation(GetVelocity() * 150.0f, GetActorLocation());
-			Cast<ADestructibleCube>(OtherActor)->GetHitCharge();//call get hit for the charged shot for cube
-		}
-		
-		UMaterialInstanceDynamic* MatInstance = OtherComp->CreateAndSetMaterialInstanceDynamic(0);
-
-		if (MatInstance)
-		{
-			MatInstance->SetVectorParameterValue("Color", FLinearColor::MakeRandomColor());
+			UGameplayStatics::SpawnEmitterAtLocation(this, ChargeShotParticle, GetActorLocation());//spawn particle system
+			//OtherComp->AddImpulseAtLocation(GetVelocity() * 150.0f, GetActorLocation());
+			Cast<ADestructibleCube>(OtherActor)->GetHitCharge();//call get hit by charged shot for cube
 		}
 
-		Destroy();
+		Destroy(); //destroy particle
 
 
 	}
 	else
 	{
-		Destroy();
+		Destroy(); //destroy particle whenever it collides with something no matter what it is
 	}
 
 }

@@ -57,23 +57,16 @@ void AFPSBombActor::ExplodeBomb()
 		UPrimitiveComponent* overlapComp = result.GetComponent();
 		if (overlapComp && overlapComp->IsSimulatingPhysics())
 		{
-			if (Cast<ADestructibleCube>(overlapComp->GetOwner()))
+			if (Cast<ADestructibleCube>(overlapComp->GetOwner())) //if overlap is a destructible cube
 			{
-				//overlapComp->AddRadialImpulse(GetActorLocation(), bombRadius, bombStrength, ERadialImpulseFalloff::RIF_Linear, true);
 				Cast<ADestructibleCube>(overlapComp->GetOwner())->GetHit();//call get hit for cube
-			}
-
-			UMaterialInstanceDynamic* mat = overlapComp->CreateAndSetMaterialInstanceDynamic(0);
-			if (mat)
-			{
-				mat->SetVectorParameterValue("Color", targetColor);
 			}
 
 		}
 	}
 
 
-	Destroy();
+	Destroy(); //destroy bomb
 }
 
 // Called every frame

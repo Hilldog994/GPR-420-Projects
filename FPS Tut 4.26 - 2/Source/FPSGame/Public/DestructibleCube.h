@@ -21,6 +21,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void GetHitCharge(); //destroy nearby cubes(or just change color)
 
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -28,8 +29,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UStaticMeshComponent* mesh;
 
-	UPROPERTY(VisibleAnywhere, Category = "Destructionon")
+	UPROPERTY(VisibleAnywhere, Category = "Destruction")
 	float explosionRadius;
+
+	bool isSmallerCube = false;
 
 public:	
 	// Called every frame

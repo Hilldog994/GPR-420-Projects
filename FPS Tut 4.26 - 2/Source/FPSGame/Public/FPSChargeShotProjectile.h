@@ -25,8 +25,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
 	UProjectileMovementComponent* ProjectileMovement;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Bomb")
-	UParticleSystem* ChargeShotPart;
+	UPROPERTY(VisibleAnywhere, Category = "Particle")
+	UParticleSystem* ChargeShotParticle;
 
 
 public:

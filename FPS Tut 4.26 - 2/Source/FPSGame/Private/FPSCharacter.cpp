@@ -92,10 +92,10 @@ void AFPSCharacter::Fire()
 
 void AFPSCharacter::StartCharge()
 {
-	if (allowCharge)
+	if (allowCharge) //if charge shot off cooldown
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Start Charge"));
-		GetWorldTimerManager().SetTimer(chargeHoldHandle, this, &AFPSCharacter::SetCharge, 1.f, false); //make it so able to charge shot after 3 second
+		GetWorldTimerManager().SetTimer(chargeHoldHandle, this, &AFPSCharacter::SetCharge, 1.f, false); //make it so able to charge shot after 1 second of holding
 	}
 }
 
@@ -104,10 +104,11 @@ void AFPSCharacter::FireChargeShot()
 	// try and fire a projectile
 	if (ChargeShotClass)
 	{
-		if (chargingDone)
+		if (chargingDone) //if shot is fully charged, perform the shot
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Charge Shot"));
-			chargingDone = false;
+			chargingDone = false; //reset charge
+
 			// Grabs location from the mesh that must have a socket called "Muzzle" in his skeleton
 			FVector MuzzleLocation = GunMeshComponent->GetSocketLocation("Muzzle");
 			// Use controller rotation which is our view direction in first person
@@ -136,12 +137,14 @@ void AFPSCharacter::FireChargeShot()
 					AnimInstance->PlaySlotAnimationAsDynamicMontage(FireAnimation, "Arms", 0.0f);
 				}
 			}
+			//start 3 second cooldown of the charge shot
 			allowCharge = false;
 			FTimerHandle chargeCooldownHandle;
-			GetWorldTimerManager().SetTimer(chargeCooldownHandle, this, &AFPSCharacter::AllowCharge, 3.f, false); //make it so able to charge shot after 3 second
+			GetWorldTimerManager().SetTimer(chargeCooldownHandle, this, &AFPSCharacter::AllowCharge, 3.f, false); //make it so able to charge shot again after 3 second
 		}
 		else
 		{
+			//reset the charge shot timer since released too early
 			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Charge Fail"));
 			GetWorldTimerManager().ClearTimer(chargeHoldHandle);
 		}

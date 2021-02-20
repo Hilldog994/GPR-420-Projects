@@ -61,8 +61,6 @@ public:
 
 	FTimerHandle chargeHoldHandle;
 
-	//virtual void Tick(float DeltaTime) override;
-
 protected:
 	
 	/** Fires a projectile. */
@@ -71,6 +69,7 @@ protected:
 	//fires the charged shot projectile
 	void FireChargeShot();
 
+	//Starts the charging of charge shot
 	void StartCharge();
 
 	//Spawns a bomb
@@ -83,8 +82,9 @@ protected:
 	void MoveRight(float Val);
 
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
-
+	//Indicates that the charge shot is done charging up
 	void SetCharge() { GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("Charge Done")); chargingDone = true; }
+	//Makes it so charge shot can be performed again
 	void AllowCharge(){ GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Charge Ready")); allowCharge = true; }
 
 public:
