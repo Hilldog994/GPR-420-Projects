@@ -40,7 +40,9 @@ void AFPSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AFPSCharacter::Fire);
-	PlayerInputComponent->BindAction("Charge", IE_Pressed, this, &AFPSCharacter::FireChargeShot);
+	
+	PlayerInputComponent->BindAction("Charge", IE_Pressed, this, &AFPSCharacter::StartCharge);
+	PlayerInputComponent->BindAction("Charge", IE_Released, this, &AFPSCharacter::FireChargeShot);
 
 	PlayerInputComponent->BindAction("Bomb", IE_Pressed, this, &AFPSCharacter::SpawnBomb);
 
@@ -88,38 +90,60 @@ void AFPSCharacter::Fire()
 	}
 }
 
+void AFPSCharacter::StartCharge()
+{
+	if (allowCharge)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Start Charge"));
+		GetWorldTimerManager().SetTimer(chargeHoldHandle, this, &AFPSCharacter::SetCharge, 1.f, false); //make it so able to charge shot after 3 second
+	}
+}
+
 void AFPSCharacter::FireChargeShot()
 {
 	// try and fire a projectile
 	if (ChargeShotClass)
 	{
-		// Grabs location from the mesh that must have a socket called "Muzzle" in his skeleton
-		FVector MuzzleLocation = GunMeshComponent->GetSocketLocation("Muzzle");
-		// Use controller rotation which is our view direction in first person
-		FRotator MuzzleRotation = GetControlRotation();
-
-		//Set Spawn Collision Handling Override
-		FActorSpawnParameters ActorSpawnParams;
-		ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
-
-		// spawn the projectile at the muzzle
-		GetWorld()->SpawnActor<AFPSChargeShotProjectile>(ChargeShotClass, MuzzleLocation, MuzzleRotation, ActorSpawnParams);
-	}
-
-	// try and play the sound if specified
-	if (FireSound)
-	{
-		UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
-	}
-
-	// try and play a firing animation if specified
-	if (FireAnimation)
-	{
-		// Get the animation object for the arms mesh
-		UAnimInstance* AnimInstance = Mesh1PComponent->GetAnimInstance();
-		if (AnimInstance)
+		if (chargingDone)
 		{
-			AnimInstance->PlaySlotAnimationAsDynamicMontage(FireAnimation, "Arms", 0.0f);
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Charge Shot"));
+			chargingDone = false;
+			// Grabs location from the mesh that must have a socket called "Muzzle" in his skeleton
+			FVector MuzzleLocation = GunMeshComponent->GetSocketLocation("Muzzle");
+			// Use controller rotation which is our view direction in first person
+			FRotator MuzzleRotation = GetControlRotation();
+
+			//Set Spawn Collision Handling Override
+			FActorSpawnParameters ActorSpawnParams;
+			ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+
+			// spawn the projectile at the muzzle
+			GetWorld()->SpawnActor<AFPSChargeShotProjectile>(ChargeShotClass, MuzzleLocation, MuzzleRotation, ActorSpawnParams);
+
+			// try and play the sound if specified
+			if (FireSound)
+			{
+				UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
+			}
+
+			// try and play a firing animation if specified
+			if (FireAnimation)
+			{
+				// Get the animation object for the arms mesh
+				UAnimInstance* AnimInstance = Mesh1PComponent->GetAnimInstance();
+				if (AnimInstance)
+				{
+					AnimInstance->PlaySlotAnimationAsDynamicMontage(FireAnimation, "Arms", 0.0f);
+				}
+			}
+			allowCharge = false;
+			FTimerHandle chargeCooldownHandle;
+			GetWorldTimerManager().SetTimer(chargeCooldownHandle, this, &AFPSCharacter::AllowCharge, 3.f, false); //make it so able to charge shot after 3 second
+		}
+		else
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Charge Fail"));
+			GetWorldTimerManager().ClearTimer(chargeHoldHandle);
 		}
 	}
 }
@@ -147,3 +171,11 @@ void AFPSCharacter::MoveRight(float Value)
 		AddMovementInput(GetActorRightVector(), Value);
 	}
 }
+
+/*void AFPSCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+
+}*/
+

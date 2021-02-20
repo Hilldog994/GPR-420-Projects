@@ -9,7 +9,6 @@
 
 class UProjectileMovementComponent;
 class UStaticMeshComponent;
-class AFPSBombActor;
 
 UCLASS()
 class AFPSChargeShotProjectile : public AActor
@@ -24,10 +23,11 @@ protected:
 
 	/** Projectile movement component */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
-		UProjectileMovementComponent* ProjectileMovement;
+	UProjectileMovementComponent* ProjectileMovement;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Cube")
-		TSubclassOf<AActor> CubeClass;
+	UPROPERTY(EditDefaultsOnly, Category = "Bomb")
+	UParticleSystem* ChargeShotPart;
+
 
 public:
 
@@ -42,9 +42,5 @@ public:
 
 	/** Returns ProjectileMovement subobject **/
 	UProjectileMovementComponent* GetProjectileMovement() const { return ProjectileMovement; }
-
-	//Bomb class, used for spawning bomb and exploding it when cube is destroyed
-	UPROPERTY(EditDefaultsOnly, Category = "Bombs")
-		TSubclassOf<AFPSBombActor> BombClass;
 
 };

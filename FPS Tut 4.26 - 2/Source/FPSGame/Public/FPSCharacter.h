@@ -35,6 +35,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	UCameraComponent* CameraComponent;
 
+	bool chargingDone = false;
+	bool allowCharge = true;
+
 public:
 	AFPSCharacter();
 
@@ -56,6 +59,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Gameplay")
 	UAnimSequence* FireAnimation;
 
+	FTimerHandle chargeHoldHandle;
+
+	//virtual void Tick(float DeltaTime) override;
+
 protected:
 	
 	/** Fires a projectile. */
@@ -63,6 +70,8 @@ protected:
 
 	//fires the charged shot projectile
 	void FireChargeShot();
+
+	void StartCharge();
 
 	//Spawns a bomb
 	void SpawnBomb();
@@ -74,6 +83,9 @@ protected:
 	void MoveRight(float Val);
 
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
+
+	void SetCharge() { GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("Charge Done")); chargingDone = true; }
+	void AllowCharge(){ GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Charge Ready")); allowCharge = true; }
 
 public:
 	/** Returns Mesh1P subobject **/

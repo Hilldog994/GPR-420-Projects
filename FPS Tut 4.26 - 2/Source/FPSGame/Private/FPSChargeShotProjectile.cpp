@@ -5,6 +5,7 @@
 #include "Components/SphereComponent.h"
 #include "FPSBombActor.h"
 #include "DestructibleCube.h"
+#include "Kismet/GameplayStatics.h"
 
 AFPSChargeShotProjectile::AFPSChargeShotProjectile()
 {
@@ -43,43 +44,11 @@ void AFPSChargeShotProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* Other
 		//if hit destructible cube
 		if (Cast<ADestructibleCube>(OtherActor))
 		{
-			//OtherComp->AddImpulseAtLocation(GetVelocity() * 100.0f, GetActorLocation());
+			UGameplayStatics::SpawnEmitterAtLocation(this, ChargeShotPart, GetActorLocation());//spawn particle system
+			OtherComp->AddImpulseAtLocation(GetVelocity() * 150.0f, GetActorLocation());
 			Cast<ADestructibleCube>(OtherActor)->GetHitCharge();//call get hit for the charged shot for cube
 		}
-		else
-		{
-			OtherComp->AddImpulseAtLocation(GetVelocity() * 100.0f, GetActorLocation());
-			FVector scale = OtherComp->GetComponentScale();
-			scale *= .8f;
-			if (scale.GetMin() < 0.5f)
-			{
-				//destroys cube
-				OtherActor->Destroy();
-
-				//spawns a bomb, then explodes it
-				AFPSBombActor* mBomb = GetWorld()->SpawnActor<AFPSBombActor>(BombClass, GetActorLocation(), GetActorRotation());
-				mBomb->ExplodeBomb();
-
-
-			}
-			else
-			{
-				//spawn 4 smaller cubes
-				/*AActor* spawnedCube1 = GetWorld()->SpawnActor<AActor>(CubeClass, OtherActor->GetActorLocation(), OtherActor->GetActorRotation());
-				AActor* spawnedCube2 = GetWorld()->SpawnActor<AActor>(CubeClass, OtherActor->GetActorLocation(), OtherActor->GetActorRotation());
-				AActor* spawnedCube3 = GetWorld()->SpawnActor<AActor>(CubeClass, OtherActor->GetActorLocation(), OtherActor->GetActorRotation());
-				AActor* spawnedCube4 = GetWorld()->SpawnActor<AActor>(CubeClass, OtherActor->GetActorLocation(), OtherActor->GetActorRotation());
-				scale *= .25f;
-				spawnedCube1->SetActorScale3D(scale);
-				spawnedCube2->SetActorScale3D(scale);
-				spawnedCube3->SetActorScale3D(scale);
-				spawnedCube4->SetActorScale3D(scale);*/
-				OtherComp->SetWorldScale3D(scale);
-
-				//destroys cube
-				//OtherActor->Destroy();
-			}
-		}
+		
 		UMaterialInstanceDynamic* MatInstance = OtherComp->CreateAndSetMaterialInstanceDynamic(0);
 
 		if (MatInstance)

@@ -17,6 +17,8 @@ ADestructibleCube::ADestructibleCube()
 
 	mesh->SetCollisionProfileName(TEXT("PhysicsActor"));
 
+	explosionRadius = 500.f;
+
 }
 
 //spawns 4 smaller cubes,destroy original
@@ -47,7 +49,35 @@ void ADestructibleCube::GetHit()
 
 void ADestructibleCube::GetHitCharge()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Orange, TEXT("Charge Hit"));
+	TArray<FOverlapResult> overlaps;
+
+	FCollisionObjectQueryParams queryParams;
+	queryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
+	queryParams.AddObjectTypesToQuery(ECC_PhysicsBody);
+
+	FCollisionShape shape;
+	shape.SetSphere(explosionRadius);
+
+	GetWorld()->OverlapMultiByObjectType(overlaps, GetActorLocation(), FQuat::Identity, queryParams, shape);
+
+	for (FOverlapResult result : overlaps)
+	{
+		UPrimitiveComponent* overlapComp = result.GetComponent();
+		if (overlapComp && overlapComp->IsSimulatingPhysics())
+		{
+			if (Cast<ADestructibleCube>(overlapComp->GetOwner()))
+			{
+				//Destroy(overlapComp->GetOwner());
+
+				UMaterialInstanceDynamic* mat = overlapComp->CreateAndSetMaterialInstanceDynamic(0);
+				if (mat)
+				{
+					mat->SetVectorParameterValue("Color", FLinearColor::MakeRandomColor());
+				}
+			}
+		}
+	}
+	Destroy();
 }
 
 // Called when the game starts or when spawned
