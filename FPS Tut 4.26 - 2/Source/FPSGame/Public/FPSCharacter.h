@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Runtime/Online/HTTP/Public/Http.h"
 #include "FPSCharacter.generated.h"
 
 class UInputComponent;
@@ -15,12 +16,10 @@ class UAnimSequence;
 class AFPSBombActor;
 class AFPSChargeShotProjectile;
 
-
 UCLASS()
 class AFPSCharacter : public ACharacter
 {
 	GENERATED_BODY()
-
 protected:
 
 	/** Pawn mesh: 1st person view  */
@@ -60,11 +59,18 @@ public:
 	UAnimSequence* FireAnimation;
 
 	FTimerHandle chargeHoldHandle;
-
+	
+	FHttpModule* http;
 protected:
 	
 	/** Fires a projectile. */
 	void Fire();
+
+	//restarts level
+	void RestartLevel();
+
+	UFUNCTION()
+	void DelegateRestart();
 
 	//fires the charged shot projectile
 	void FireChargeShot();
@@ -81,6 +87,8 @@ protected:
 	/** Handles strafing movement, left and right */
 	void MoveRight(float Val);
 
+	virtual void BeginPlay() override;
+
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 	//Indicates that the charge shot is done charging up
 	void SetCharge() { GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("Charge Done")); chargingDone = true; }
@@ -88,6 +96,11 @@ protected:
 	void AllowCharge(){ GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Charge Ready")); allowCharge = true; }
 
 public:
+	UFUNCTION()
+	void MyHttpCall();
+
+	void HttpRequest(FHttpRequestPtr request, FHttpResponsePtr response, bool bWasSuccess);
+
 	/** Returns Mesh1P subobject **/
 	USkeletalMeshComponent* GetMesh1P() const { return Mesh1PComponent; }
 

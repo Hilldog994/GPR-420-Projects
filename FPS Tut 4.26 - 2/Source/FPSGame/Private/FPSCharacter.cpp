@@ -30,8 +30,40 @@ AFPSCharacter::AFPSCharacter()
 	GunMeshComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FP_Gun"));
 	GunMeshComponent->CastShadow = false;
 	GunMeshComponent->SetupAttachment(Mesh1PComponent, "GripPoint");
+
+	http = &FHttpModule::Get();
 }
 
+void AFPSCharacter::MyHttpCall()
+{
+	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> request = http->CreateRequest();
+	request->OnProcessRequestComplete().BindUObject(this, &AFPSCharacter::HttpRequest);
+	request->SetURL("https://api.weather.gov/gridpoints/LWX/96,70/forecast");
+	request->SetVerb("GET");
+	request->SetHeader(TEXT("User-Agent"), "X-UnrealEngine-Agent");
+	request->SetHeader("Content-Type", TEXT("application/json"));
+	request->ProcessRequest();
+}
+
+void AFPSCharacter::HttpRequest(FHttpRequestPtr request, FHttpResponsePtr response, bool bWasSuccess)
+{
+	//Create a pointer to hold the json serialized data
+	TSharedPtr<FJsonObject> jsonObject;
+	//Create a reader pointer to read the json data
+	TSharedRef<TJsonReader<>> reader = TJsonReaderFactory<>::Create(response->GetContentAsString());
+
+	//Deserialize the json data given Reader and the actual object to deserialize
+	if (FJsonSerializer::Deserialize(reader, jsonObject))
+	{
+		//https://answers.unrealengine.com/questions/390663/how-to-retrieve-single-text-field-from-json.html showing that you keep getting fields
+		//https://forums.unrealengine.com/development-discussion/c-gameplay-programming/59874-json-help-with-complex-structures getting array field as object
+		//periods[0] is this afternoon, 1 is tonight, 2 is next day, 3 is next night, etc.
+		int32 recievedInt = jsonObject->GetObjectField("properties")->GetArrayField("periods")[0]->AsObject()->GetIntegerField("temperature");
+
+		//Output
+		GEngine->AddOnScreenDebugMessage(1, 2.f, FColor::Green, FString::FromInt(recievedInt));
+	}
+}
 
 void AFPSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -40,6 +72,8 @@ void AFPSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AFPSCharacter::Fire);
+	
+	PlayerInputComponent->BindAction("RestartLevel", IE_Pressed, this, &AFPSCharacter::RestartLevel);
 	
 	PlayerInputComponent->BindAction("Charge", IE_Pressed, this, &AFPSCharacter::StartCharge);
 	PlayerInputComponent->BindAction("Charge", IE_Released, this, &AFPSCharacter::FireChargeShot);
@@ -53,6 +87,23 @@ void AFPSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 }
 
+void AFPSCharacter::RestartLevel()
+{
+	FTimerDelegate timerDel;
+	FTimerHandle timerHand;
+
+	timerDel.BindUFunction(this, FName("DelegateRestart"));
+	
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("Starting Reset"));
+	//reset in 3 seconds
+	GetWorldTimerManager().SetTimer(timerHand, timerDel, 3.f, false);
+}
+
+void AFPSCharacter::DelegateRestart()
+{
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Start Charge"));
+	GetWorld()->GetFirstPlayerController()->RestartLevel();
+}
 
 void AFPSCharacter::Fire()
 {
@@ -173,6 +224,12 @@ void AFPSCharacter::MoveRight(float Value)
 		// add movement in that direction
 		AddMovementInput(GetActorRightVector(), Value);
 	}
+}
+
+void AFPSCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	MyHttpCall();
 }
 
 /*void AFPSCharacter::Tick(float DeltaTime)

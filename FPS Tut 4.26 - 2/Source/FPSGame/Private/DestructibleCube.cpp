@@ -32,22 +32,34 @@ void ADestructibleCube::GetHit()
 	}
 	else
 	{
-		//tried disabling collision before spawning to prevent them flying out but it didnt change anything
-
-		//spawns 4 cubes
-		ADestructibleCube* spawnedCube1 = GetWorld()->SpawnActor<ADestructibleCube>(this->GetClass(), GetActorLocation() + FVector(1.0, 0.0, 1.0), GetActorRotation());
-		ADestructibleCube* spawnedCube2 = GetWorld()->SpawnActor<ADestructibleCube>(this->GetClass(), GetActorLocation() + FVector(1.0, 0.0, -1.0), GetActorRotation());
-		ADestructibleCube* spawnedCube3 = GetWorld()->SpawnActor<ADestructibleCube>(this->GetClass(), GetActorLocation() + FVector(-1.0, 0.0, 1.0), GetActorRotation());
-		ADestructibleCube* spawnedCube4 = GetWorld()->SpawnActor<ADestructibleCube>(this->GetClass(), GetActorLocation() + FVector(-1.0, 0.0, -1.0), GetActorRotation());
 		scale *= .5f; //half of all dimensions makes a 4th of the cube, apply to all spawned cubes
+		//tried disabling collision before spawning to prevent them flying out but it didnt change anything
+		SetActorEnableCollision(false);
+		//spawns 4 cubes
+		ADestructibleCube* spawnedCube1 = GetWorld()->SpawnActor<ADestructibleCube>(this->GetClass(), GetActorLocation() + FVector(80.0, 0.0, 150.0), GetActorRotation());
 		spawnedCube1->RootComponent->SetWorldScale3D(scale);
 		spawnedCube1->isSmallerCube = true;
+		//spawnedCube1->SetActorEnableCollision(false);
+
+		ADestructibleCube* spawnedCube2 = GetWorld()->SpawnActor<ADestructibleCube>(this->GetClass(), GetActorLocation() + FVector(80.0, 0.0, 0.0), GetActorRotation());
+		//spawnedCube2->SetActorEnableCollision(false);
 		spawnedCube2->RootComponent->SetWorldScale3D(scale);
 		spawnedCube2->isSmallerCube = true;
+
+		ADestructibleCube* spawnedCube3 = GetWorld()->SpawnActor<ADestructibleCube>(this->GetClass(), GetActorLocation() + FVector(-80.0, 0.0, 150.0), GetActorRotation());
+		//spawnedCube3->SetActorEnableCollision(false);
 		spawnedCube3->RootComponent->SetWorldScale3D(scale);
 		spawnedCube3->isSmallerCube = true;
+
+		ADestructibleCube* spawnedCube4 = GetWorld()->SpawnActor<ADestructibleCube>(this->GetClass(), GetActorLocation() + FVector(-80.0, 0.0, 0.0), GetActorRotation());
+		//spawnedCube4->SetActorEnableCollision(false);
 		spawnedCube4->RootComponent->SetWorldScale3D(scale);
 		spawnedCube4->isSmallerCube = true;
+		
+		
+		
+		
+		
 
 		Destroy();//destroys original cube(this)
 	}
