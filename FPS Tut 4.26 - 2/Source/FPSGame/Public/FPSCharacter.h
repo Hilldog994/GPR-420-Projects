@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "Runtime/Online/HTTP/Public/Http.h"
 #include "FPSCharacter.generated.h"
 
 class UInputComponent;
@@ -60,7 +59,6 @@ public:
 
 	FTimerHandle chargeHoldHandle;
 	
-	FHttpModule* http;
 protected:
 	
 	/** Fires a projectile. */
@@ -96,11 +94,6 @@ protected:
 	void AllowCharge(){ GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Charge Ready")); allowCharge = true; }
 
 public:
-	UFUNCTION()
-	void MyHttpCall();
-
-	void HttpRequest(FHttpRequestPtr request, FHttpResponsePtr response, bool bWasSuccess);
-
 	/** Returns Mesh1P subobject **/
 	USkeletalMeshComponent* GetMesh1P() const { return Mesh1PComponent; }
 

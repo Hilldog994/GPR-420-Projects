@@ -30,39 +30,6 @@ AFPSCharacter::AFPSCharacter()
 	GunMeshComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FP_Gun"));
 	GunMeshComponent->CastShadow = false;
 	GunMeshComponent->SetupAttachment(Mesh1PComponent, "GripPoint");
-
-	http = &FHttpModule::Get();
-}
-
-void AFPSCharacter::MyHttpCall()
-{
-	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> request = http->CreateRequest();
-	request->OnProcessRequestComplete().BindUObject(this, &AFPSCharacter::HttpRequest);
-	request->SetURL("https://api.weather.gov/gridpoints/LWX/96,70/forecast");
-	request->SetVerb("GET");
-	request->SetHeader(TEXT("User-Agent"), "X-UnrealEngine-Agent");
-	request->SetHeader("Content-Type", TEXT("application/json"));
-	request->ProcessRequest();
-}
-
-void AFPSCharacter::HttpRequest(FHttpRequestPtr request, FHttpResponsePtr response, bool bWasSuccess)
-{
-	//Create a pointer to hold the json serialized data
-	TSharedPtr<FJsonObject> jsonObject;
-	//Create a reader pointer to read the json data
-	TSharedRef<TJsonReader<>> reader = TJsonReaderFactory<>::Create(response->GetContentAsString());
-
-	//Deserialize the json data given Reader and the actual object to deserialize
-	if (FJsonSerializer::Deserialize(reader, jsonObject))
-	{
-		//https://answers.unrealengine.com/questions/390663/how-to-retrieve-single-text-field-from-json.html showing that you keep getting fields
-		//https://forums.unrealengine.com/development-discussion/c-gameplay-programming/59874-json-help-with-complex-structures getting array field as object
-		//periods[0] is this afternoon, 1 is tonight, 2 is next day, 3 is next night, etc.
-		int32 recievedInt = jsonObject->GetObjectField("properties")->GetArrayField("periods")[0]->AsObject()->GetIntegerField("temperature");
-
-		//Output
-		GEngine->AddOnScreenDebugMessage(1, 2.f, FColor::Green, FString::FromInt(recievedInt));
-	}
 }
 
 void AFPSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -229,7 +196,6 @@ void AFPSCharacter::MoveRight(float Value)
 void AFPSCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	MyHttpCall();
 }
 
 /*void AFPSCharacter::Tick(float DeltaTime)
