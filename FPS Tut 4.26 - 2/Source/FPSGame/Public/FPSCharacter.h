@@ -36,6 +36,8 @@ protected:
 	bool chargingDone = false;
 	bool allowCharge = true;
 
+	float chargeScaleMod = 1.0f;
+
 public:
 	AFPSCharacter();
 
@@ -99,6 +101,8 @@ public:
 
 	/** Returns FirstPersonCameraComponent subobject **/
 	UCameraComponent* GetFirstPersonCameraComponent() const { return CameraComponent; }
+
+	virtual void Tick(float DeltaTime) override;
 
 };
 

@@ -19,7 +19,10 @@ public:
 	void GetHit(); //spawn 4 smaller cubes
 
 	UFUNCTION(BlueprintCallable)
-	void GetHitCharge(); //destroy nearby cubes(or just change color)
+	void GetHitCharge(float scale); //destroy nearby cubes(or just change color)
+
+	//sets cube as small cube, will probably use for starting delegate idk
+	void SetSmallCube();
 
 
 protected:
@@ -34,6 +37,7 @@ protected:
 
 	bool isSmallerCube = false;
 
+	void SpawnSmallCube(FVector loc, FVector scale);
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

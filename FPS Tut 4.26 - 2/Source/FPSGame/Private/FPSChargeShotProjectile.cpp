@@ -44,7 +44,7 @@ void AFPSChargeShotProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* Other
 		{
 			UGameplayStatics::SpawnEmitterAtLocation(this, ChargeShotParticle, GetActorLocation());//spawn particle system
 			//OtherComp->AddImpulseAtLocation(GetVelocity() * 150.0f, GetActorLocation());
-			Cast<ADestructibleCube>(OtherActor)->GetHitCharge();//call get hit by charged shot for cube
+			Cast<ADestructibleCube>(OtherActor)->GetHitCharge(scaleModifier);//call get hit by charged shot for cube
 		}
 
 		Destroy(); //destroy particle

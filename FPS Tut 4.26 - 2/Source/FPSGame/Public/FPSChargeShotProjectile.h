@@ -25,13 +25,17 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
 	UProjectileMovementComponent* ProjectileMovement;
 
-	UPROPERTY(VisibleAnywhere, Category = "Particle")
+	UPROPERTY(EditDefaultsOnly, Category = "Particle")
 	UParticleSystem* ChargeShotParticle;
+
+	float scaleModifier;
 
 
 public:
 
 	AFPSChargeShotProjectile();
+	UFUNCTION()
+	void setScaleMod(float amt) { scaleModifier = amt; }
 
 	/** called when projectile hits something */
 	UFUNCTION()

@@ -33,32 +33,16 @@ void ADestructibleCube::GetHit()
 	else
 	{
 		scale *= .5f; //half of all dimensions makes a 4th of the cube, apply to all spawned cubes
-		//tried disabling collision before spawning to prevent them flying out but it didnt change anything
+		//disable collision so smaller cubes dont propel themselves when spawned
 		SetActorEnableCollision(false);
-		//spawns 4 cubes
-		ADestructibleCube* spawnedCube1 = GetWorld()->SpawnActor<ADestructibleCube>(this->GetClass(), GetActorLocation() + FVector(80.0, 0.0, 150.0), GetActorRotation());
-		spawnedCube1->RootComponent->SetWorldScale3D(scale);
-		spawnedCube1->isSmallerCube = true;
-		//spawnedCube1->SetActorEnableCollision(false);
+		//spawns 4 smaller cubes
+		SpawnSmallCube(GetActorLocation() + FVector(80.0, 0.0, 150.0), scale);
 
-		ADestructibleCube* spawnedCube2 = GetWorld()->SpawnActor<ADestructibleCube>(this->GetClass(), GetActorLocation() + FVector(80.0, 0.0, 0.0), GetActorRotation());
-		//spawnedCube2->SetActorEnableCollision(false);
-		spawnedCube2->RootComponent->SetWorldScale3D(scale);
-		spawnedCube2->isSmallerCube = true;
+		SpawnSmallCube(GetActorLocation() + FVector(80.0, 0.0, 0.0), scale);
 
-		ADestructibleCube* spawnedCube3 = GetWorld()->SpawnActor<ADestructibleCube>(this->GetClass(), GetActorLocation() + FVector(-80.0, 0.0, 150.0), GetActorRotation());
-		//spawnedCube3->SetActorEnableCollision(false);
-		spawnedCube3->RootComponent->SetWorldScale3D(scale);
-		spawnedCube3->isSmallerCube = true;
+		SpawnSmallCube(GetActorLocation() + FVector(-80.0, 0.0, 150.0), scale);
 
-		ADestructibleCube* spawnedCube4 = GetWorld()->SpawnActor<ADestructibleCube>(this->GetClass(), GetActorLocation() + FVector(-80.0, 0.0, 0.0), GetActorRotation());
-		//spawnedCube4->SetActorEnableCollision(false);
-		spawnedCube4->RootComponent->SetWorldScale3D(scale);
-		spawnedCube4->isSmallerCube = true;
-		
-		
-		
-		
+		SpawnSmallCube(GetActorLocation() + FVector(-80.0, 0.0, 0.0), scale);
 		
 
 		Destroy();//destroys original cube(this)
@@ -66,8 +50,15 @@ void ADestructibleCube::GetHit()
 	
 }
 
+void ADestructibleCube::SpawnSmallCube(FVector loc, FVector scale)
+{
+	ADestructibleCube* spawnedCube = GetWorld()->SpawnActor<ADestructibleCube>(this->GetClass(), loc, GetActorRotation());
+	spawnedCube->RootComponent->SetWorldScale3D(scale);
+	spawnedCube->SetSmallCube();
+}
+
 //When charge shot hits cube, change color or destroy nearby cubes
-void ADestructibleCube::GetHitCharge()
+void ADestructibleCube::GetHitCharge(float scale)
 {
 	TArray<FOverlapResult> overlaps;
 
@@ -87,15 +78,28 @@ void ADestructibleCube::GetHitCharge()
 		{
 			if (Cast<ADestructibleCube>(overlapComp->GetOwner())) //if overlap is a destructible cube
 			{
+				ADestructibleCube* cube = Cast<ADestructibleCube>(overlapComp->GetOwner());
 				//overlapComp->GetOwner()->Destroy(); //destroy overlap cube
 				
 				//change color to random color
 				overlapComp->AddRadialImpulse(GetActorLocation(), explosionRadius, 5000.f, ERadialImpulseFalloff::RIF_Linear,true);
+				float newScale = FMath::FRandRange(overlapComp->GetComponentScale().X * 1.0f/ scale, overlapComp->GetComponentScale().X);
+				overlapComp->SetWorldScale3D(FVector(newScale));
 				UMaterialInstanceDynamic* mat = overlapComp->CreateAndSetMaterialInstanceDynamic(0);
 				if (mat)
 				{
 					mat->SetVectorParameterValue("Color", FLinearColor::MakeRandomColor());
 				}
+				if (cube->isSmallerCube) //if already small, destroy
+				{
+					overlapComp->GetOwner()->Destroy();
+				}
+				else
+				{
+					cube->SetSmallCube();
+				}
+				
+
 			}
 		}
 	}
@@ -107,6 +111,11 @@ void ADestructibleCube::BeginPlay()
 {
 	Super::BeginPlay();
 	
+}
+
+void ADestructibleCube::SetSmallCube()
+{
+	isSmallerCube = true;
 }
 
 // Called every frame

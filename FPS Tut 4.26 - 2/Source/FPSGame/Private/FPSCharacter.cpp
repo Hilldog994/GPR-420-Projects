@@ -137,7 +137,8 @@ void AFPSCharacter::FireChargeShot()
 			ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 
 			// spawn the projectile at the muzzle
-			GetWorld()->SpawnActor<AFPSChargeShotProjectile>(ChargeShotClass, MuzzleLocation, MuzzleRotation, ActorSpawnParams);
+			AFPSChargeShotProjectile* proj = GetWorld()->SpawnActor<AFPSChargeShotProjectile>(ChargeShotClass, MuzzleLocation, MuzzleRotation, ActorSpawnParams);
+			proj->setScaleMod(chargeScaleMod);
 
 			// try and play the sound if specified
 			if (FireSound)
@@ -198,10 +199,13 @@ void AFPSCharacter::BeginPlay()
 	Super::BeginPlay();
 }
 
-/*void AFPSCharacter::Tick(float DeltaTime)
+void AFPSCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-
-}*/
+	if (chargingDone) //if charge being held for longer than needed, increase scale modifier
+	{
+		chargeScaleMod += 0.02f;
+	}
+}
 
