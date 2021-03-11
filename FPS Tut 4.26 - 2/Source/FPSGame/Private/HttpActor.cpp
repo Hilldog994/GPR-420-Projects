@@ -16,7 +16,7 @@ void AHttpActor::BeginPlay()
 	Super::BeginPlay();
 	MyHttpCall();	
 	FTimerHandle handle;
-	GetWorldTimerManager().SetTimer(handle, this, &AHttpActor::MyHttpCall, 10.f, true); //check JSON every 10 seconds
+	GetWorldTimerManager().SetTimer(handle, this, &AHttpActor::MyHttpCall, 60.f, true); //check JSON every minute
 }
 
 void AHttpActor::MyHttpCall()
@@ -45,14 +45,12 @@ void AHttpActor::HttpRequest(FHttpRequestPtr request, FHttpResponsePtr response,
 		//https://forums.unrealengine.com/development-discussion/c-gameplay-programming/59874-json-help-with-complex-structures getting array field as object
 		//periods[0] is this afternoon, 1 is tonight, 2 is next day, 3 is next night, etc.
 		temperature = jsonObject->GetObjectField("properties")->GetArrayField("periods")[0]->AsObject()->GetIntegerField("temperature");
+		windDir = jsonObject->GetObjectField("properties")->GetArrayField("periods")[0]->AsObject()->GetStringField("windDirection");
 		FString windSpdFull = jsonObject->GetObjectField("properties")->GetArrayField("periods")[0]->AsObject()->GetStringField("windSpeed");
 		//https://docs.unrealengine.com/en-US/ProgrammingAndScripting/ProgrammingWithCPP/UnrealArchitecture/StringHandling/FString/index.html#encodingconversionmacros
 		//fstring to int to convert wind speed to an int to use
-		windSpeed =  FCString::Atoi(*windSpdFull.Left(1));
+		windSpeed =  FCString::Atoi(*windSpdFull.Left(2));
 
-		//Output
-		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, FString::FromInt(temperature));
-		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Blue, FString::FromInt(windSpeed));
 	}
 }
 

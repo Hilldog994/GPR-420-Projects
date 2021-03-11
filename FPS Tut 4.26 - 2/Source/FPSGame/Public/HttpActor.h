@@ -18,6 +18,8 @@ public:
 
 	FHttpModule* http;
 
+	FString windDir;
+
 	int32 temperature, windSpeed;
 
 protected:

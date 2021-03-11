@@ -14,6 +14,7 @@ class USoundBase;
 class UAnimSequence;
 class AFPSBombActor;
 class AFPSChargeShotProjectile;
+//class AHttpActor;
 
 UCLASS()
 class AFPSCharacter : public ACharacter
@@ -40,6 +41,9 @@ protected:
 
 public:
 	AFPSCharacter();
+
+	UPROPERTY(EditAnywhere, Category = "HTTP")
+	AActor* httpActor;
 
 	/** Projectile class to spawn */
 	UPROPERTY(EditDefaultsOnly, Category="Projectile")
@@ -86,6 +90,8 @@ protected:
 
 	/** Handles strafing movement, left and right */
 	void MoveRight(float Val);
+
+	void RefreshHttp();
 
 	virtual void BeginPlay() override;
 

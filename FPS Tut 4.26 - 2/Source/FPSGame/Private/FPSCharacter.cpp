@@ -9,6 +9,7 @@
 #include "Animation/AnimSequence.h"
 #include "FPSBombActor.h"
 #include "FPSChargeShotProjectile.h"
+#include "HttpActor.h"
 
 
 AFPSCharacter::AFPSCharacter()
@@ -197,6 +198,17 @@ void AFPSCharacter::MoveRight(float Value)
 void AFPSCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	if (httpActor != nullptr)
+	{
+		//Output
+		FTimerHandle handle;
+		GetWorldTimerManager().SetTimer(handle, this, &AFPSCharacter::RefreshHttp, 3.f, true); //check JSON every minute
+	}
+}
+void AFPSCharacter::RefreshHttp()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, Cast<AHttpActor>(httpActor)->windDir);
+	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, FString::FromInt(Cast<AHttpActor>(httpActor)->windSpeed));
 }
 
 void AFPSCharacter::Tick(float DeltaTime)
