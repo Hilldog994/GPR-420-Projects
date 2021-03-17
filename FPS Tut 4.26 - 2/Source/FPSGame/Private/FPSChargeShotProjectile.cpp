@@ -9,6 +9,8 @@
 
 AFPSChargeShotProjectile::AFPSChargeShotProjectile()
 {
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Created Charge Shot"));
+
 	// Use a sphere as a simple collision representation
 	CollisionComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CubeComp"));
 	//CollisionComp->InitSphereRadius(5.0f);
@@ -25,8 +27,8 @@ AFPSChargeShotProjectile::AFPSChargeShotProjectile()
 	// Use a ProjectileMovementComponent to govern this projectile's movement
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComp"));
 	ProjectileMovement->UpdatedComponent = CollisionComp;
-	ProjectileMovement->InitialSpeed = 6000.0f;
-	ProjectileMovement->MaxSpeed = 6000.0f;
+	ProjectileMovement->InitialSpeed = 3000.0f;
+	ProjectileMovement->MaxSpeed = 3000.0f;
 	ProjectileMovement->bRotationFollowsVelocity = true;
 	ProjectileMovement->bShouldBounce = false;
 	ProjectileMovement->ProjectileGravityScale = 0.0f; //make it a straight shot
@@ -40,6 +42,8 @@ void AFPSChargeShotProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* Other
 {
 	if ((OtherActor != NULL) && (OtherActor != this) && (OtherComp != NULL) && OtherComp->IsSimulatingPhysics())
 	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Hit Something"));
+
 		if (Cast<ADestructibleCube>(OtherActor))//if hit destructible cube
 		{
 			UGameplayStatics::SpawnEmitterAtLocation(this, ChargeShotParticle, GetActorLocation());//spawn particle system

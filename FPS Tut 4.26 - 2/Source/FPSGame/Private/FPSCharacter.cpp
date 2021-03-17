@@ -114,7 +114,9 @@ void AFPSCharacter::StartCharge()
 	if (allowCharge) //if charge shot off cooldown
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Start Charge"));
-		GetWorldTimerManager().SetTimer(chargeHoldHandle, this, &AFPSCharacter::SetCharge, 1.f, false); //make it so able to charge shot after 1 second of holding
+		//GetWorldTimerManager().SetTimer(chargeHoldHandle, this, &AFPSCharacter::SetCharge, 1.f, false); //make it so able to charge shot after 1 second of holding
+
+		GetWorldTimerManager().SetTimer(chargeHoldHandle, this, &AFPSCharacter::FireChargeShot, 3.0f);
 	}
 }
 
@@ -123,8 +125,19 @@ void AFPSCharacter::FireChargeShot()
 	// try and fire a projectile
 	if (ChargeShotClass)
 	{
-		if (chargingDone) //if shot is fully charged, perform the shot
+		if (allowCharge) //if shot is fully charged, perform the shot
 		{
+			float chargeAmount = GetWorldTimerManager().GetTimerElapsed(chargeHoldHandle); //Returns amount the projectile was charged
+
+			if (chargeAmount < 1.0f)
+			{
+				//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Not Enough Charge"));
+				//return;
+				chargeAmount = 1.0f;
+			}
+
+			//FVector chargeScale = FVector(chargeAmount, chargeAmount, chargeAmount); //Sets size of projectile based on charge
+
 			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Charge Shot"));
 			chargingDone = false; //reset charge
 
@@ -139,7 +152,11 @@ void AFPSCharacter::FireChargeShot()
 
 			// spawn the projectile at the muzzle
 			AFPSChargeShotProjectile* proj = GetWorld()->SpawnActor<AFPSChargeShotProjectile>(ChargeShotClass, MuzzleLocation, MuzzleRotation, ActorSpawnParams);
-			proj->setScaleMod(chargeScaleMod);
+			proj->setScaleMod(chargeAmount);
+			//proj->SetActorScale3D(chargeScale); //Changes scale of charge shot based on how much it was charge
+
+			GetWorldTimerManager().ClearTimer(chargeHoldHandle); //Reset timer
+
 
 			// try and play the sound if specified
 			if (FireSound)
