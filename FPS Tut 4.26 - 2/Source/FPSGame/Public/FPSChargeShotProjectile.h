@@ -30,6 +30,8 @@ protected:
 
 	float scaleModifier;
 
+	virtual void BeginPlay() override;
+
 
 public:
 

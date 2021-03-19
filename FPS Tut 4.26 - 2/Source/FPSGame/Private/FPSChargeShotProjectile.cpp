@@ -9,7 +9,6 @@
 
 AFPSChargeShotProjectile::AFPSChargeShotProjectile()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Created Charge Shot"));
 
 	// Use a sphere as a simple collision representation
 	CollisionComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CubeComp"));
@@ -35,6 +34,12 @@ AFPSChargeShotProjectile::AFPSChargeShotProjectile()
 
 	// Die after 1 seconds by default
 	InitialLifeSpan = 1.0f;
+}
+
+void AFPSChargeShotProjectile::BeginPlay()
+{
+	Super::BeginPlay();
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Created Charge Shot"));
 }
 
 
