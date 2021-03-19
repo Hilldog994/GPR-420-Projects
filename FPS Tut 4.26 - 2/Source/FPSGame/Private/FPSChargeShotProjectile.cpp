@@ -45,6 +45,9 @@ void AFPSChargeShotProjectile::BeginPlay()
 
 void AFPSChargeShotProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+	//CubeDelegate.AddDynamic(this, &DestructibleCube::RecolorFunction);
+	//CubeDelegate.AddDynamic(this, &DestructibleCube::ResizeFunction);
+
 	if ((OtherActor != NULL) && (OtherActor != this) && (OtherComp != NULL) && OtherComp->IsSimulatingPhysics())
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Hit Something"));
@@ -54,6 +57,8 @@ void AFPSChargeShotProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* Other
 			UGameplayStatics::SpawnEmitterAtLocation(this, ChargeShotParticle, GetActorLocation());//spawn particle system
 			//OtherComp->AddImpulseAtLocation(GetVelocity() * 150.0f, GetActorLocation());
 			Cast<ADestructibleCube>(OtherActor)->GetHitCharge(scaleModifier);//call get hit by charged shot for cube
+																			 
+			//CubeDelegate.Broadcast();
 		}
 
 		Destroy(); //destroy particle

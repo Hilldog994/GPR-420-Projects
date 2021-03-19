@@ -10,6 +10,8 @@
 class UProjectileMovementComponent;
 class UStaticMeshComponent;
 
+//DECLARE_DYNAMIC_MULTICAST_DELEGATE(FCube);
+
 UCLASS()
 class AFPSChargeShotProjectile : public AActor
 {
@@ -27,6 +29,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Particle")
 	UParticleSystem* ChargeShotParticle;
+
+	//UPROPERTY()
+	//FCube CubeDelegate;
 
 	float scaleModifier;
 
