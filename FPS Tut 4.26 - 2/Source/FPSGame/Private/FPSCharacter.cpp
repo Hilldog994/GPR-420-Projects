@@ -129,12 +129,14 @@ void AFPSCharacter::FireChargeShot()
 		{
 			float chargeAmount = GetWorldTimerManager().GetTimerElapsed(chargeHoldHandle); //Returns amount the projectile was charged
 
+			/*
 			if (chargeAmount < 1.0f)
 			{
 				//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Not Enough Charge"));
 				//return;
 				chargeAmount = 1.0f;
 			}
+			*/
 
 			//FVector chargeScale = FVector(chargeAmount, chargeAmount, chargeAmount); //Sets size of projectile based on charge
 

@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "DestructibleCube.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FCubeHit); //Declaring cube multicast delegates
+
 UCLASS()
 class FPSGAME_API ADestructibleCube : public AActor
 {
@@ -24,6 +26,12 @@ public:
 	//sets cube as small cube, will probably use for starting delegate idk
 	void SetSmallCube();
 
+	UFUNCTION()
+	void ResizeCube();
+	
+	UFUNCTION()
+	void RecolorCube();
+
 
 protected:
 	// Called when the game starts or when spawned
@@ -34,6 +42,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Destruction")
 	float explosionRadius;
+
+	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers")
+	FCubeHit CubeDelegate;
 
 	bool isSmallerCube = false;
 

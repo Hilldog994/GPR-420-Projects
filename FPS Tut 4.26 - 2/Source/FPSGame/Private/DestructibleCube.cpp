@@ -67,7 +67,7 @@ void ADestructibleCube::GetHitCharge(float scale)
 	queryParams.AddObjectTypesToQuery(ECC_PhysicsBody);
 
 	FCollisionShape shape;
-	shape.SetSphere(explosionRadius);
+	shape.SetSphere(scale * 200.0f);
 
 	GetWorld()->OverlapMultiByObjectType(overlaps, GetActorLocation(), FQuat::Identity, queryParams, shape);
 	//overlap within radius
@@ -80,37 +80,65 @@ void ADestructibleCube::GetHitCharge(float scale)
 			{
 				ADestructibleCube* cube = Cast<ADestructibleCube>(overlapComp->GetOwner());
 				//overlapComp->GetOwner()->Destroy(); //destroy overlap cube
-				
-				//change color to random color
-				overlapComp->AddRadialImpulse(GetActorLocation(), explosionRadius, 5000.f, ERadialImpulseFalloff::RIF_Linear,true);
-				float newScale = FMath::FRandRange(overlapComp->GetComponentScale().X * 1.0f/ scale, overlapComp->GetComponentScale().X);
-				overlapComp->SetWorldScale3D(FVector(newScale));
-				UMaterialInstanceDynamic* mat = overlapComp->CreateAndSetMaterialInstanceDynamic(0);
-				if (mat)
-				{
-					mat->SetVectorParameterValue("Color", FLinearColor::MakeRandomColor());
-				}
-				if (cube->isSmallerCube) //if already small, destroy
-				{
-					overlapComp->GetOwner()->Destroy();
-				}
-				else
-				{
-					cube->SetSmallCube();
-				}
-				
 
+				//ADestructibleCube* hitCube = overlapComp->GetOwner()->FindComponentByClass<ADestructibleCube>();
+				
+				overlapComp->AddRadialImpulse(GetActorLocation(), scale * 200.0f, 1000.f, ERadialImpulseFalloff::RIF_Linear,true); //Creates impulse to push hit cubes
+
+				//Adds functions to the multicast delegate
+				cube->CubeDelegate.AddDynamic(cube, &ADestructibleCube::ResizeCube);
+				cube->CubeDelegate.AddDynamic(cube, &ADestructibleCube::RecolorCube);
+
+				//Broadcast multicasted functions
+				cube->CubeDelegate.Broadcast();
 			}
 		}
 	}
 	Destroy();//destroy original attacked cube(this)
 }
 
+//Resizes cube in range of explosion
+void ADestructibleCube::ResizeCube()
+{
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Resizing Cube"));
+	UPrimitiveComponent* overlapComp = FindComponentByClass<UPrimitiveComponent>();
+	
+	//Gets half of the cubes current scale
+	FVector newScale = RootComponent->GetComponentScale();
+	newScale *= 0.5f;
+
+	//scales cube based on determined scale
+	overlapComp->SetWorldScale3D(newScale);
+
+	if (isSmallerCube) //if already small, destroy
+	{
+		overlapComp->GetOwner()->Destroy();
+	}
+	else
+	{
+		SetSmallCube();
+	}
+}
+
+//Randomly recolers cube in range
+void ADestructibleCube::RecolorCube()
+{
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Recoloring Cube"));
+
+	UPrimitiveComponent* overlapComp = FindComponentByClass<UPrimitiveComponent>();
+
+	UMaterialInstanceDynamic* mat = overlapComp->CreateAndSetMaterialInstanceDynamic(0);
+	mat->SetVectorParameterValue("Color", FLinearColor::MakeRandomColor());
+	if (mat) //If found mat, changes color
+	{
+		mat->SetVectorParameterValue("Color", FLinearColor::MakeRandomColor());
+	}
+}
+
 // Called when the game starts or when spawned
 void ADestructibleCube::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 void ADestructibleCube::SetSmallCube()
