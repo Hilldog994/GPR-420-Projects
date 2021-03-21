@@ -14,7 +14,7 @@ class USoundBase;
 class UAnimSequence;
 class AFPSBombActor;
 class AFPSChargeShotProjectile;
-//class AHttpActor;
+class AHttpActor;
 
 UCLASS()
 class AFPSCharacter : public ACharacter
@@ -34,6 +34,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	UCameraComponent* CameraComponent;
 
+	UPROPERTY(EditDefaultsOnly, Category = "HTTP")
+	AHttpActor* httpActor;
+
 	bool chargingDone = false;
 	bool allowCharge = true;
 
@@ -41,9 +44,6 @@ protected:
 
 public:
 	AFPSCharacter();
-
-	UPROPERTY(EditAnywhere, Category = "HTTP")
-	AActor* httpActor;
 
 	/** Projectile class to spawn */
 	UPROPERTY(EditDefaultsOnly, Category="Projectile")
@@ -91,7 +91,7 @@ protected:
 	/** Handles strafing movement, left and right */
 	void MoveRight(float Val);
 
-	void RefreshHttp();
+	void DisplayHttp();
 
 	virtual void BeginPlay() override;
 

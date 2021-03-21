@@ -88,7 +88,13 @@ void AFPSCharacter::Fire()
 		ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 
 		// spawn the projectile at the muzzle
-		GetWorld()->SpawnActor<AFPSProjectile>(ProjectileClass, MuzzleLocation, MuzzleRotation, ActorSpawnParams);
+		AFPSProjectile* proj = GetWorld()->SpawnActor<AFPSProjectile>(ProjectileClass, MuzzleLocation, MuzzleRotation, ActorSpawnParams);
+		if (httpActor != nullptr)
+		{
+			//apply wind to the projectile
+			proj->ApplyWind(httpActor->windDir, httpActor->windSpeed);
+			DisplayHttp();
+		}
 	}
 
 	// try and play the sound if specified
@@ -217,14 +223,11 @@ void AFPSCharacter::MoveRight(float Value)
 void AFPSCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	if (httpActor != nullptr)
-	{
-		//Output
-		FTimerHandle handle;
-		GetWorldTimerManager().SetTimer(handle, this, &AFPSCharacter::RefreshHttp, 3.f, true); //check JSON every minute
-	}
+	//get global httpActor from scene
+	httpActor = Cast<AHttpActor>(UGameplayStatics::GetActorOfClass(GetWorld(), AHttpActor::StaticClass()));
 }
-void AFPSCharacter::RefreshHttp()
+
+void AFPSCharacter::DisplayHttp()
 {
 	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, Cast<AHttpActor>(httpActor)->windDir);
 	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, FString::FromInt(Cast<AHttpActor>(httpActor)->windSpeed));

@@ -29,8 +29,11 @@ AFPSProjectile::AFPSProjectile()
 	ProjectileMovement->bRotationFollowsVelocity = true;
 	ProjectileMovement->bShouldBounce = true;
 
+	PrimaryActorTick.bCanEverTick = true;
+
 	// Die after 3 seconds by default
 	InitialLifeSpan = 3.0f;
+	windForce = FVector::ZeroVector;
 }
 
 
@@ -57,4 +60,48 @@ void AFPSProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPr
 
 
 	}
+}
+
+void AFPSProjectile::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	ProjectileMovement->AddForce(windForce);
+}
+
+void AFPSProjectile::ApplyWind(FString direction, int speed)
+{
+	if (direction == "N")
+	{
+		windForce = FVector(1, 0, 0);
+	}
+	else if (direction == "S")
+	{
+		windForce = FVector(-1, 0, 0);
+	}
+	else if (direction == "E")
+	{
+		windForce = FVector(0, 1, 0);
+	}
+	else if (direction == "W")
+	{
+		windForce = FVector(0, -1, 0);
+	}
+	else if (direction == "NE")
+	{
+		windForce = FVector(1, 1, 0);
+	}
+	else if (direction == "SE")
+	{
+		windForce = FVector(-1, 1, 0);
+	}
+	else if (direction == "SW")
+	{
+		windForce = FVector(-1, -1, 0);
+	}
+	else if (direction == "NW")
+	{
+		windForce = FVector(1, -1, 0);
+	}
+	windForce.Normalize();
+	windForce *= speed * 120;
 }
